@@ -1,0 +1,75 @@
+include:
+  - path: ./postgres/docker-compose.yaml
+    env_file: ./postgres/.env
+  - path: ./keycloak/docker-compose.yaml
+
+registry:
+    image: ghcr.io/cirpass-2/mock-eu-registry-pgsql-oidc:latest
+    ports:
+      - "8082:8080"
+    environment:
+      QUARKUS_DATASOURCE_REACTIVE_URL: vertx-reactive:postgresql://postgres:5432/${POSTGRES_REGISTRY_DB}
+      QUARKUS_DATASOURCE_USERNAME: ${POSTGRES_USER}
+      QUARKUS_DATASOURCE_PASSWORD: ${POSTGRES_PASSWORD}
+      QUARKUS_DATASOURCE_REACTIVE_MAX_SIZE: 20
+      
+      QUARKUS_OIDC_AUTH_SERVER_URL: keycloak:8081/realms/${KEYCLOAK_REALM}
+      QUARKUS_OIDC_CLIENT_ID: ${REGISTRY_CLIENT_ID} 
+      QUARKUS_OIDC_CREDENTIALS_SECRET: ${REGISTRY_CLIENT_SECRET}
+      
+      AUTOCOMPLETION_ENABLED_FOR: commodityCode,facilitiesId
+      REGISTRY_UPDATE_STRATEGY: MODIFY
+      REGISTRY_REOID_FROM_CLAIM_ENABLED: 'true'
+
+      REGISTRY_DPP_VALIDATION_ENABLED: 'true'
+      QUARKUS_REST_CLIENT_DPP_VALIDATION_URL: validator:8082
+    depends_on:
+      - postgres
+validator:
+    image: ghcr.io/cirpass-2/dpp-validator-pgsql-oidc:latest
+    ports:
+      - "8082:8080"
+    environment:
+      QUARKUS_DATASOURCE_REACTIVE_URL: vertx-reactive:postgresql://postgres:5432/${POSTGRES_VALIDATOR_DB}
+      QUARKUS_DATASOURCE_USERNAME: ${POSTGRES_USER}
+      QUARKUS_DATASOURCE_PASSWORD: ${POSTGRES_PASSWORD}
+      QUARKUS_DATASOURCE_REACTIVE_MAX_SIZE: 20
+      
+      QUARKUS_OIDC_AUTH_SERVER_URL: keycloak:8081/realms/${KEYCLOAK_REALM}
+      QUARKUS_OIDC_CLIENT_ID: ${VALIDATOR_CLIENT_ID} 
+      QUARKUS_OIDC_CREDENTIALS_SECRET: ${VALIDATOR_CLIENT_SECRET}
+    depends_on:
+      - postgres
+data-extractor:
+    image: ghcr.io/cirpass-2/dpp-data-extractor-pgsql-oidc:latest
+    ports:
+      - "8083:8080"
+    environment:
+      QUARKUS_DATASOURCE_REACTIVE_URL: vertx-reactive:postgresql://postgres:5432/${POSTGRES_REGISTRY_DB}
+      QUARKUS_DATASOURCE_USERNAME: ${POSTGRES_USER}
+      QUARKUS_DATASOURCE_PASSWORD: ${POSTGRES_PASSWORD}
+      QUARKUS_DATASOURCE_REACTIVE_MAX_SIZE: 20
+      QUARKUS_DATASOURCE_EXTRACTION_REACTIVE_URL: vertx-reactive:postgresql://postgres:5432/${POSTGRES_PORTAL_DB}
+      QUARKUS_DATASOURCE_EXTRACTION_USERNAME: ${POSTGRES_USER}
+      QUARKUS_DATASOURCE_EXTRACTION_PASSWORD: ${POSTGRES_PASSWORD}
+      QUARKUS_DATASOURCE_EXTRACTION_REACTIVE_MAX_SIZE: 20
+      QUARKUS_OIDC_AUTH_SERVER_URL: keycloak:8081/realms/${KEYCLOAK_REALM}
+      QUARKUS_OIDC_CLIENT_ID: ${VALIDATOR_CLIENT_ID} 
+      QUARKUS_OIDC_CREDENTIALS_SECRET: ${VALIDATOR_CLIENT_SECRET}
+      EXTRACTOR_DPP_REFERENCE_ONTOLOGY_VOCABULARIES: http://dpp.taltech.ee/EUDPP#,http://dpp.taltech.ee/EUDPP
+    depends_on:
+      - postgres
+renderer-be:
+    image: ghcr.io/cirpass-2/dpp-renderer-be-pgsql-oidc:latest
+    ports:
+      - "8084:8080"
+    environment:
+      QUARKUS_DATASOURCE_REACTIVE_URL: vertx-reactive:postgresql://postgres:5432/${POSTGRES_PORTAL_DB}
+      QUARKUS_DATASOURCE_USERNAME: ${POSTGRES_USER}
+      QUARKUS_DATASOURCE_PASSWORD: ${POSTGRES_PASSWORD}
+      QUARKUS_DATASOURCE_REACTIVE_MAX_SIZE: 20
+      QUARKUS_OIDC_AUTH_SERVER_URL: keycloak:8081/realms/${KEYCLOAK_REALM}
+      QUARKUS_OIDC_CLIENT_ID: ${BE_CLIENT_ID} 
+      QUARKUS_OIDC_CREDENTIALS_SECRET: ${BE_CLIENT_SECRET}
+    depends_on:
+      - postgres

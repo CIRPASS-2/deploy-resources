@@ -1,0 +1,22 @@
+services:
+  postgres:
+    image: docker.io/library/postgres:16
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+    ports:
+      - "5434:5432"
+    volumes:
+      - ./scripts/00-create-databases.sql:/docker-entrypoint-initdb.d/00-create-databases.sql:ro
+      - ./scripts/01-registry.sql:/docker-entrypoint-initdb.d/01-registry.sql:ro
+      - ./scripts/02-validator.sql:/docker-entrypoint-initdb.d/02-validator.sql:ro
+      - ./scripts/03-portal.sql:/docker-entrypoint-initdb.d/03-portal.sql:ro
+      - postgres-data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
+volumes:
+  postgres-data:
