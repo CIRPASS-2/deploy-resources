@@ -5,16 +5,22 @@ services:
       - start-dev
       - --import-realm
     environment:
+      KC_HOSTNAME: http://localhost:8180
+      KC_HEALTH_ENABLED: true
       KEYCLOAK_ADMIN: ${KEYCLOAK_ADMIN}
       KEYCLOAK_ADMIN_PASSWORD: ${KEYCLOAK_ADMIN_PASSWORD}
-      KC_DB: ${KEYCLOAK_DB}
-      KC_DB_URL: jdbc:postgresql://keycloak-postgres:5433/${KEYCLOAK_DB}
+      KC_HOSTNAME_BACKCHANNEL_DYNAMIC: "true"
+      KC_LOG_LEVEL: "INFO,org.keycloak.events:DEBUG,org.keycloak.services.managers:DEBUG,org.keycloak.protocol.oidc:DEBUG"
+      KC_DB: postgres
+      KC_DB_URL: jdbc:postgresql://keycloak-postgres:5432/${KEYCLOAK_DB}
       KC_DB_USERNAME: ${KEYCLOAK_DB_USER}
       KC_DB_PASSWORD: ${KEYCLOAK_DB_PASSWORD}
       KC_HTTP_PORT: 8180
       KC_HOSTNAME_STRICT: "false"
+      KC_PROXY: edge
       KC_HOSTNAME_STRICT_HTTPS: "false"
       KC_HTTP_ENABLED: "true"
+      KC_PROXY_HEADERS: xforwarded
     ports:
       - "8180:8180"
     volumes:
@@ -23,17 +29,13 @@ services:
       keycloak-postgres:
         condition: service_healthy
     healthcheck:
-      test:
-        [
-          "CMD-SHELL",
-          "exec 3<>/dev/tcp/localhost/8180 && echo -e 'GET /health/ready HTTP/1.1\\r\\nHost: localhost\\r\\nConnection: close\\r\\n\\r\\n' >&3 && cat <&3 | grep -q '200 OK'"
-        ]
+      test: ["CMD-SHELL","{ printf 'HEAD /health/ready HTTP/1.0\\r\\n\\r\\n' >&0; grep 'HTTP/1.0 200'; } 0<>/dev/tcp/localhost/9000"]
       interval: 10s
       timeout: 5s
-      retries: 10
-      start_period: 30s
+      retries: 15
+      start_period: 60s
 
-  kycloak-postgres:
+  keycloak-postgres:
     image: postgres:16
     environment:
       POSTGRES_DB: ${KEYCLOAK_DB}
@@ -42,7 +44,7 @@ services:
     volumes:
       - keycloak-db:/var/lib/postgresql/data
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U keycloak"]
+      test: ["CMD-SHELL", "pg_isready -U ${KEYCLOAK_DB_USER}"]
       interval: 5s
       timeout: 5s
       retries: 10

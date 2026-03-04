@@ -41,10 +41,15 @@
         "http://localhost:4200/*"
       ],
       "webOrigins": [
-        "http://localhost:4200"
+        "http://localhost:4200",
+        "http://localhost:4200*",
+        "http://localhost:4200/*",
+        "+",
+        "*"
       ],
       "attributes": {
-        "pkce.code.challenge.method": "S256"
+        "pkce.code.challenge.method": "S256",
+        "use.refresh.tokens": "true"
       },
       "protocolMappers": [
         {
@@ -118,6 +123,17 @@
             "claim.name": "groups",
             "jsonType.label": "String"
           }
+        },
+        {
+          "name": "registry-be-audience",
+          "protocol": "openid-connect",
+          "protocolMapper": "oidc-audience-mapper",
+          "consentRequired": false,
+          "config": {
+            "included.client.audience": "registry-be",
+            "access.token.claim": "true",
+            "id.token.claim": "false"
+          }
         }
       ]
     },
@@ -146,6 +162,17 @@
             "access.token.claim": "true",
             "claim.name": "groups",
             "jsonType.label": "String"
+          }
+        },
+        {
+          "name": "validator-be-audience",
+          "protocol": "openid-connect",
+          "protocolMapper": "oidc-audience-mapper",
+          "consentRequired": false,
+          "config": {
+            "included.client.audience": "validator-be",
+            "access.token.claim": "true",
+            "id.token.claim": "false"
           }
         }
       ]
@@ -180,9 +207,9 @@
       ]
     },
     {
-      "clientId": "registry-to-validator",
-      "name": "Registry → Validator (M2M)",
-      "description": "Client credentials used by registry-be to call validator-be",
+      "clientId": "public-authority",
+      "name": "Public Authority (M2M)",
+      "description": "Client credentials used by public authority services to call internal APIs",
       "enabled": true,
       "protocol": "openid-connect",
       "bearerOnly": false,
@@ -205,6 +232,28 @@
             "access.token.claim": "true",
             "claim.name": "groups",
             "jsonType.label": "String"
+          }
+        },
+        {
+          "name": "registry-be-audience",
+          "protocol": "openid-connect",
+          "protocolMapper": "oidc-audience-mapper",
+          "consentRequired": false,
+          "config": {
+            "included.client.audience": "registry-be",
+            "access.token.claim": "true",
+            "id.token.claim": "false"
+          }
+        },
+        {
+          "name": "validator-be-audience",
+          "protocol": "openid-connect",
+          "protocolMapper": "oidc-audience-mapper",
+          "consentRequired": false,
+          "config": {
+            "included.client.audience": "validator-be",
+            "access.token.claim": "true",
+            "id.token.claim": "false"
           }
         }
       ]
@@ -249,6 +298,28 @@
             "claim.name": "reoId",
             "jsonType.label": "String"
           }
+        },
+        {
+          "name": "registry-be-audience",
+          "protocol": "openid-connect",
+          "protocolMapper": "oidc-audience-mapper",
+          "consentRequired": false,
+          "config": {
+            "included.client.audience": "registry-be",
+            "access.token.claim": "true",
+            "id.token.claim": "false"
+          }
+        },
+        {
+          "name": "validator-be-audience",
+          "protocol": "openid-connect",
+          "protocolMapper": "oidc-audience-mapper",
+          "consentRequired": false,
+          "config": {
+            "included.client.audience": "validator-be",
+            "access.token.claim": "true",
+            "id.token.claim": "false"
+          }
         }
       ]
     }
@@ -289,14 +360,80 @@
       "realmRoles": [
         "eu"
       ]
+    },
+    {
+      "username": "service-account-public-authority",
+      "enabled": true,
+      "emailVerified": false,
+      "serviceAccountClientId": "public-authority",
+      "realmRoles": [
+        "eu"
+      ]
+    },
+    {
+      "username": "service-account-eo-EO-529900T8BM49AURSDO10",
+      "enabled": true,
+      "emailVerified": false,
+      "serviceAccountClientId": "eo-EO-529900T8BM49AURSDO10",
+      "realmRoles": [
+        "eo"
+      ]
     }
   ],
-  "clientScopeMappings": {
-    "registry-to-validator": [
+  "components": {
+    "org.keycloak.keys.KeyProvider": [
       {
-        "client": "registry-to-validator",
+        "name": "rsa-generated",
+        "providerId": "rsa-generated",
+        "subComponents": {},
+        "config": {
+          "priority": [
+            "100"
+          ],
+          "enabled": [
+            "true"
+          ],
+          "active": [
+            "true"
+          ],
+          "keySize": [
+            "2048"
+          ],
+          "algorithm": [
+            "RS256"
+          ]
+        }
+      },
+      {
+        "name": "rsa-enc-generated",
+        "providerId": "rsa-enc-generated",
+        "subComponents": {},
+        "config": {
+          "priority": [
+            "100"
+          ],
+          "enabled": [
+            "true"
+          ],
+          "active": [
+            "true"
+          ],
+          "keySize": [
+            "2048"
+          ],
+          "algorithm": [
+            "RSA-OAEP"
+          ]
+        }
+      }
+    ]
+  },
+  "clientScopeMappings": {
+    "public-authority": [
+      {
+        "client": "public-authority",
         "roles": [
-          "eo"
+          "eu"
         ]
       }
     ],
