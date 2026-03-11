@@ -84,7 +84,7 @@ services:
       QUARKUS_HTTP_CORS_ORIGINS: ${CORS_ORIGINS}
       QUARKUS_OIDC_DISCOVERY_ENABLED: "false"
       QUARKUS_OIDC_JWKS_PATH: http://keycloak:8180/realms/cirpass-2/protocol/openid-connect/certs
-      EXTRACTOR_DPP_REFERENCE_ONTOLOGY_VOCABULARIES: http://dpp.taltech.ee/EUDPP#,http://dpp.taltech.ee/EUDPP
+      EXTRACTOR_DPP_REFERENCE_ONTOLOGY_VOCABULARIES: https://w3id.org/eudpp#,https://w3id.org/eudpp
 
   renderer-be:
     extra_hosts:
