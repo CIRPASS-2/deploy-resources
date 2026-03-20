@@ -111,3 +111,22 @@ services:
       QUARKUS_VERTX_MAX_EVENT_LOOP_EXECUTE_TIME_UNIT: SECONDS
       QUARKUS_OIDC_DISCOVERY_ENABLED: "false"
       QUARKUS_OIDC_JWKS_PATH: http://keycloak:8180/realms/cirpass-2/protocol/openid-connect/certs
+  renderer-fe:
+    extra_hosts:
+      - "localhost:host-gateway"
+    depends_on:
+      keycloak:
+        condition: service_healthy
+      renderer-be:
+        condition: service_started
+      data-extractor:
+        condition: service_started
+    image: ghcr.io/cirpass-2/dpp-renderer-fe:latest
+    ports:
+      - "4200:8080"
+    environment:
+      BACKEND_URL: ${BACKEND_URL}
+      CAPABILITIES_URL: ${CAPABILITIES_URL}
+      OIDC_ISSUER: ${FE_OIDC_ISSUER}
+      OIDC_CLIENT_ID: ${FE_OIDC_CLIENT_ID}
+      OIDC_HTTPS: ${FE_OIDC_HTTPS}

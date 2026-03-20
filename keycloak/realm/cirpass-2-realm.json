@@ -69,35 +69,6 @@
       ]
     },
     {
-      "clientId": "web-portal-be",
-      "name": "Web Portal Backend",
-      "enabled": true,
-      "protocol": "openid-connect",
-      "bearerOnly": false,
-      "publicClient": false,
-      "standardFlowEnabled": false,
-      "implicitFlowEnabled": false,
-      "directAccessGrantsEnabled": false,
-      "serviceAccountsEnabled": false,
-      "secret": "CqXS7oemuZwPkZlJU2lNtZ1vfCocyDN-jRYc0fjmal8",
-      "protocolMappers": [
-        {
-          "name": "groups-mapper",
-          "protocol": "openid-connect",
-          "protocolMapper": "oidc-usermodel-realm-role-mapper",
-          "consentRequired": false,
-          "config": {
-            "multivalued": "true",
-            "userinfo.token.claim": "true",
-            "id.token.claim": "true",
-            "access.token.claim": "true",
-            "claim.name": "groups",
-            "jsonType.label": "String"
-          }
-        }
-      ]
-    },
-    {
       "clientId": "registry-be",
       "name": "Registry Backend",
       "enabled": true,
