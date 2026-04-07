@@ -16,6 +16,37 @@ Technical interpretations of the European Digital Product Passport system expres
 
 ---
 
+## Test environment
+
+The below diagram shows how the tools works together.
+
+<img width="832" height="380" alt="image" src="https://raw.githubusercontent.com/CIRPASS-2/assets/main/images/cirpass2-tools.png" />
+
+The diagram above shows how the CIRPASS 2 services work together. Two actors interact with the system: the **Economic Operator (rEO)**, who submits Digital Product Passports; and the **Web User**, who browses and compares DPPs through the frontend. These actors are costituted by four backend services — `mock-eu-registry`, `dpp-validator`,`dpp-data-extractor`, and `renderer-be` — all backed by PostgreSQL and secured via Keycloak.
+
+Three main flows are supported:
+
+- The **rEO flow** (handled by `mock-eu-registry` and `dpp-validator`) implies:
+    1. A REST client retrieving a token from Keycloak.
+    2. A REST client submitting DPP metadata to `mock-eu-registry` using the retrieved token for authentication. The metadata includes a **live URL** — a publicly reachable endpoint where the actual DPP payload can be fetched.
+    3. `mock-eu-registry` fetching the actual DPP payload from the live URL and forwarding it to `dpp-validator` for validation before persisting the metadata.
+    4. `mock-eu-registry` returning the registry ID to the client on success, or rejecting the submission if validation fails.
+
+- The **extraction flow** (handled by `dpp-data-extractor`) implies:
+    1. `dpp-data-extractor` polling `mock-eu-registry` for recently created or modified entries with model-level granularity.
+    2. `dpp-data-extractor` fetching the actual DPP payload from the live URL of each entry.
+    3. `dpp-data-extractor` extracting structured data from each payload and persisting it in the **search keys cache** — a dedicated PostgreSQL database used by `renderer-be` to serve search queries.
+
+- The **Web UI user flow** (handled by `renderer-fe` and `renderer-be`) implies:
+    1. A user authenticating via Keycloak and accessing `renderer-fe`.
+    2. The user searching model-level DPP data from the search keys cache via `renderer-be`.
+    3. The user rendering individual DPPs by scanning a QR code or entering a URL directly, retrieving them via `renderer-be`.
+    4. The user comparing multiple DPPs by repeatedly scanning QR codes or adding DPP URLs and issuing a comparison request to the `renderer-be`.
+
+The test environment uses:
+- Keycloak as an OpenID compliant IdP.
+- PostgreSQL as the DB for the mock-eu-registry, the dpp-validator and as the search keys cache.
+
 ## Repository structure
 
 ```
