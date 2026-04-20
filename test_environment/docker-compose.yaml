@@ -47,8 +47,12 @@ services:
       QUARKUS_OIDC_DISCOVERY_ENABLED: "false"
       QUARKUS_OIDC_JWKS_PATH: ${KEYCLOAK_JWKS_URL}
       QUARKUS_LOG_LEVEL: ${LOG_LEVEL}
-  
-
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8080/q/health/live"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 30s
   validator:
     depends_on:
       keycloak:
@@ -67,9 +71,16 @@ services:
       QUARKUS_OIDC_TOKEN_ISSUER: ${KEYCLOAK_TOKEN_ISSUER}
       QUARKUS_OIDC_CLIENT_ID: ${VALIDATOR_CLIENT_ID}
       QUARKUS_OIDC_CREDENTIALS_SECRET: ${VALIDATOR_CLIENT_SECRET}
+      QUARKUS_HTTP_CORS_ORIGINS: ${CORS_ORIGINS}
       QUARKUS_OIDC_DISCOVERY_ENABLED: "false"
       QUARKUS_OIDC_JWKS_PATH: ${KEYCLOAK_JWKS_URL}
       QUARKUS_LOG_LEVEL: ${LOG_LEVEL}
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8080/q/health/live"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 30s
   data-extractor:
     extra_hosts:
       - "localhost:host-gateway"
@@ -99,6 +110,12 @@ services:
       QUARKUS_OIDC_JWKS_PATH: ${KEYCLOAK_JWKS_URL}
       EXTRACTOR_DPP_REFERENCE_ONTOLOGY_VOCABULARIES: https://w3id.org/eudpp#,https://w3id.org/eudpp
       QUARKUS_LOG_LEVEL: ${LOG_LEVEL}
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8080/q/health/live"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 30s
 
   renderer-be:
     extra_hosts:
@@ -126,6 +143,12 @@ services:
       QUARKUS_OIDC_DISCOVERY_ENABLED: "false"
       QUARKUS_OIDC_JWKS_PATH: ${KEYCLOAK_JWKS_URL}
       QUARKUS_LOG_LEVEL: ${LOG_LEVEL}
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8080/q/health/live"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 30s
   renderer-fe:
     extra_hosts:
       - "localhost:host-gateway"
@@ -133,9 +156,11 @@ services:
       keycloak:
         condition: service_healthy
       renderer-be:
-        condition: service_started
+        condition: service_healthy
       data-extractor:
-        condition: service_started
+        condition: service_healthy
+      validator:
+        condition: service_healthy
     image: ghcr.io/cirpass-2/dpp-renderer-fe:latest
     ports:
       - "4200:8080"
