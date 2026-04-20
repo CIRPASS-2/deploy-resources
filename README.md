@@ -20,7 +20,7 @@ Technical interpretations of the European Digital Product Passport system expres
 
 The below diagram shows how the tools works together.
 
-<img width="832" height="430" alt="image" src="https://raw.githubusercontent.com/CIRPASS-2/assets/main/images/cirpass2-tools.png" />
+<img width="832" height="600" alt="image" src="https://raw.githubusercontent.com/CIRPASS-2/assets/main/images/cirpass2-tools.png" />
 
 The diagram above shows how the CIRPASS 2 services work together. Two actors interact with the system: the **Economic Operator (rEO)**, who submits Digital Product Passports; and the **Web User**, who browses and compares DPPs through the frontend. These actors are costituted by four backend services — `mock-eu-registry`, `dpp-validator`,`dpp-data-extractor`, and `renderer-be` — all backed by PostgreSQL and secured via Keycloak.
 
