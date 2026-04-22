@@ -315,22 +315,20 @@
       ]
     },
     {
-      "username": "european_agency",
-      "email": "european_agency@dpp.local",
-      "firstName": "European",
-      "lastName": "Agency",
+      "username": "user",
+      "email": "user@dpp.local",
+      "firstName": "User",
+      "lastName": "User",
       "enabled": true,
       "emailVerified": true,
       "credentials": [
         {
           "type": "password",
-          "value": "european_agency",
+          "value": "user",
           "temporary": false
         }
       ],
-      "realmRoles": [
-        "eu"
-      ]
+      "realmRoles": []
     },
     {
       "username": "service-account-public-authority",
